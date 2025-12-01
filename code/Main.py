@@ -10,6 +10,8 @@ import random
 # from bf_solver import brute_force_tsp           
 from approximation import run_tsp_approx    
 # from local_search import local_search_tsp       
+ 
+from local_search import local_search_tsp       
 
 
 
@@ -55,32 +57,32 @@ def parse_tsp_file(file_path):
     return coords
 
 
-# ---------- Geometry / tour length ----------
+# # ---------- Geometry / tour length ----------
 
-def euclid_dist(coords, i, j):
-    """
-    Euclidean distance between vertex i and j (0-based indices).
-    """
-    x1, y1 = coords[i]
-    x2, y2 = coords[j]
-    dx = x1 - x2
-    dy = y1 - y2
-    return math.hypot(dx, dy)
+# def euclid_dist(coords, i, j):
+#     """
+#     Euclidean distance between vertex i and j (0-based indices).
+#     """
+#     x1, y1 = coords[i]
+#     x2, y2 = coords[j]
+#     dx = x1 - x2
+#     dy = y1 - y2
+#     return math.hypot(dx, dy)
 
 
-def tour_length(coords, tour):
-    """
-    Compute total length of a TSP tour.
-    tour: list of vertex indices (0-based).
-    Automatically closes the cycle (last -> first).
-    """
-    n = len(tour)
-    total = 0.0
-    for k in range(n):
-        i = tour[k]
-        j = tour[(k + 1) % n]
-        total += euclid_dist(coords, i, j)
-    return total
+# def tour_length(coords, tour):
+#     """
+#     Compute total length of a TSP tour.
+#     tour: list of vertex indices (0-based).
+#     Automatically closes the cycle (last -> first).
+#     """
+#     n = len(tour)
+#     total = 0.0
+#     for k in range(n):
+#         i = tour[k]
+#         j = tour[(k + 1) % n]
+#         total += euclid_dist(coords, i, j)
+#     return total
 
 
 
@@ -99,7 +101,7 @@ def run_and_write_solution(instance_path, method, cutoff, seed=None):
     elif method == "LS":
         if seed is None:
             raise ValueError("Local Search (LS) requires a seed")
-        tour_algo = lambda coords: local_search_tsp(coords, cutoff, seed)
+        tour_algo = local_search_tsp(file_path = instance_path, coords = coords, cutoff = cutoff, seed = seed)
     else:
         raise ValueError(f"Unknown algorithm: {method}")
     runtime = time.time() - start
