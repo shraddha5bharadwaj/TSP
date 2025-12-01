@@ -8,7 +8,7 @@ import time
 import random
 
 from bf_solver import brute_force_tsp           
-from mst_approx import mst_2approx_algorithm    
+from approximation import run_tsp    
 from local_search import local_search_tsp       
 
 
@@ -85,58 +85,28 @@ def tour_length(coords, tour):
 
 
 
-
 def run_and_write_solution(instance_path, method, cutoff, seed=None):
     # --- Load coordinates ---
     coords = parse_tsp_file(instance_path)
 
     # --- Choose algorithm ---
+    start = time.time()
     method = method.upper()
     if method == "BF":
         tour_algo = brute_force_tsp
     elif method == "APPROX":
-        tour_algo = mst_approx_algorithm
+        tour_algo = run_tsp
     elif method == "LS":
         if seed is None:
             raise ValueError("Local Search (LS) requires a seed")
         tour_algo = lambda coords: local_search_tsp(coords, cutoff, seed)
     else:
         raise ValueError(f"Unknown algorithm: {method}")
-
+    runtime = time.time() - start
     # --- Set RNG seed if used ---
     if seed is not None:
         random.seed(seed)
 
-    # --- Run + time ---
-    start = time.time()
-    tour = tour_algo(coords)
-    runtime = time.time() - start
-
-    # --- Compute cost ---
-    cost = tour_length(coords, tour)
-
-    # --- Build .sol filename ---
-    instance_name = os.path.splitext(os.path.basename(instance_path))[0].lower()
-
-    if method == "BF":
-        sol_name = f"{instance_name} BF {cutoff}.sol"
-    elif method == "APPROX":
-        sol_name = f"{instance_name} Approx.sol" if seed is None else f"{instance_name} Approx {seed}.sol"
-    else:   # LS
-        sol_name = f"{instance_name} LS {cutoff} {seed}.sol"
-
-    # --- Format output lines ---
-    line1 = f"{cost:.6f}"
-    line2 = ",".join(str(i + 1) for i in tour)
-
-    # --- Print to stdout ---
-    print(line1)
-    print(line2)
-
-    # --- Write solution file ---
-    with open(sol_name, "w") as f:
-        f.write(line1 + "\n")
-        f.write(line2 + "\n")
 
     return runtime
 

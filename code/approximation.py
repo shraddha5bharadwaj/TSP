@@ -155,7 +155,7 @@ def mst_approx_algorithm(coords):
 
 
 
-def run_tsp(file_path, algorithm):
+def run_tsp(file_path):
     """
     Run a TSP algorithm, measure runtime, print results, and write .sol file.
 
@@ -172,14 +172,14 @@ def run_tsp(file_path, algorithm):
         runtime (seconds)
     """
 
-    sol_filename = "output/approximate/" + os.path.splitext(os.path.basename(file_path))[0].lower() + "_approx.sol"
+    sol_filename = "../output/approximate/" + os.path.splitext(os.path.basename(file_path))[0].lower() + "_approx.sol"
 
     # ---- Parse TSP ----
     coords = parse_tsp_file(file_path)
 
     # ---- Run Algorithm + time it ----
     start = time.time()
-    tour = algorithm(coords)
+    tour = mst_approx_algorithm(coords)
     end = time.time()
     runtime = end - start
 
@@ -210,5 +210,5 @@ if __name__ == "__main__":
         sys.exit(1)
 
     file_path = sys.argv[1]
-    a = run_tsp(file_path, mst_approx_algorithm)
+    a = run_tsp(file_path)
     print(f"{a} seconds")
