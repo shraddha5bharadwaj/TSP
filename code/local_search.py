@@ -200,17 +200,19 @@ def local_search_tsp(file_path, coords, cutoff, seed):
     sa_time = 0
     nn_len = 0
     two_len = 0
-    # Run for 10 times with random seeds 
+    # Base RNG to produce per-run seeds and reproducible shuffles
+    base_rand = random.Random(seed) if seed is not None else random.Random()
+    # Run for 10 times with distinct random seeds
     for i in range(10):
-        
-        # Random initial tour + SA (demo)
-        t0 = time.time()
+        # Random initial tour (use base_rand for reproducibility when seed provided)
         init_random = list(range(len(points)))
-        random.shuffle(init_random)
+        base_rand.shuffle(init_random)
+        # generate a fresh seed for this SA run
+        run_seed = base_rand.randint(0, 2**31 - 1)
         sa_tour, sa_len, sa_stats = simulated_annealing(
             points,
             init_tour=two_tour,            # start from two-opt result (common practice)
-            seed=seed
+            seed=run_seed
         )
         sa_time += sa_stats['time']
 
