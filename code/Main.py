@@ -8,7 +8,7 @@ import time
 import random
 
 # from bf_solver import brute_force_tsp           
-from approximation import run_tsp    
+from approximation import run_tsp_approx    
 # from local_search import local_search_tsp       
 
 
@@ -95,7 +95,7 @@ def run_and_write_solution(instance_path, method, cutoff, seed=None):
     if method == "BF":
         tour_algo = brute_force_tsp
     elif method == "APPROX":
-        tour_algo = run_tsp(file_path=instance_path,cutoff=cutoff,seed=seed)
+        tour_algo = run_tsp_approx(file_path=instance_path,cutoff=cutoff,seed=seed)
     elif method == "LS":
         if seed is None:
             raise ValueError("Local Search (LS) requires a seed")

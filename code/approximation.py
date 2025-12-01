@@ -4,7 +4,7 @@ import time
 import os
 
 
-def parse_tsp_file(file_path):
+def read_tsp_file(file_path):
     """
     Parse a TSPLIB-style .tsp file with NODE_COORD_SECTION and EUC_2D coords.
     Returns:
@@ -47,11 +47,11 @@ def parse_tsp_file(file_path):
     return coords
 
 
-# ---------- Geometry / tour length ----------
+
 
 def euclid_dist(coords, i, j):
     """
-    Euclidean distance between vertex i and j (0-based indices).
+    Euclidean distance between vertex i and j
     """
     x1, y1 = coords[i]
     x2, y2 = coords[j]
@@ -62,9 +62,9 @@ def euclid_dist(coords, i, j):
 
 def tour_length(coords, tour):
     """
-    Compute total length of a TSP tour.
-    tour: list of vertex indices (0-based), e.g. [0, 5, 2, ..., 7].
-    Automatically closes the cycle (last -> first).
+    Computes total length of a TSP tour which is  tour cost and solution quality
+    tour: list of vertex indices 
+    Considers the last traversal from last to first vertex in the cost
     """
     n = len(tour)
     total = 0.0
@@ -75,9 +75,9 @@ def tour_length(coords, tour):
     return total
 
 
-# ---------- 2-approx TSP via MST (metric TSP) ----------
+# 2-approx TSP through MST
 
-def mst_approx_algorithm(coords):
+def mst_approx_algorithm(coords): 
     """
     2-approximation algorithm for metric TSP using MST
 
@@ -96,9 +96,9 @@ def mst_approx_algorithm(coords):
     if n == 0:
         return []
 
-    # --- Step 1: Prim's algorithm on implicit complete graph ---
+    #  Prim's algorithm to build MST
 
-    in_mst = [False] * n
+    mstArray = [False] * n
     key = [float("inf")] * n   # best edge weight to connect each vertex
     parent = [-1] * n          # parent[v] = u in MST
 
@@ -110,29 +110,29 @@ def mst_approx_algorithm(coords):
         u = -1
         u_key = float("inf")
         for v in range(n):
-            if not in_mst[v] and key[v] < u_key:
+            if not mstArray[v] and key[v] < u_key:
                 u_key = key[v]
                 u = v
 
-        in_mst[u] = True
+        mstArray[u] = True
 
         # update keys of neighbors (all other vertices) since graph is complete
         for v in range(n):
-            if not in_mst[v]:
+            if not mstArray[v]:
                 w = euclid_dist(coords, u, v)
                 if w < key[v]:
                     key[v] = w
                     parent[v] = u
 
-    # --- Build adjacency list of MST ---
-    adj = [[] for _ in range(n)]
-    for v in range(1, n):
-        p = parent[v]
+    # Graph adjacency list based MST graph construction
+    Graph = [[] for _ in range(n)]
+    for node in range(1, n):
+        p = parent[node]
         if p != -1:
-            adj[p].append(v)
-            adj[v].append(p)
+            Graph[p].append(node)
+            Graph[node].append(p)
 
-    # --- Step 2: DFS preorder to get tour ---
+    #  DFS preorder algorithm function to get tour 
 
     tour = []
     visited = [False] * n
@@ -140,38 +140,36 @@ def mst_approx_algorithm(coords):
     def dfs(u):
         visited[u] = True
         tour.append(u)
-        for w in adj[u]:
+        for w in Graph[u]:
             if not visited[w]:
                 dfs(w)
 
-    dfs(0)  # root at 0; any start vertex works for metric TSP
+    dfs(0)  # root at 0, preorder traversal
 
     # tour is now a permutation of [0..n-1] in preorder
     return tour
 
 
-# ---------- Driver ----------
 
-
-
-def run_tsp(file_path,cutoff=0,seed=None):
+def run_tsp_approx(file_path,cutoff=0,seed=None):
     """
-    Run a TSP algorithm, measure runtime, print results, and write .sol file.
+    This function does the following
+        Runs a TSP algorithm, measures runtime, prints results, and writes .sol file.
 
     Parameters:
-        file_path:     path to .tsp file
-        algorithm:     function(coords) -> list of 0-based vertex indices
-        sol_filename:  name of output .sol file (e.g., "atlanta Approx 600.sol")
+        file_path   path to .tsp file
+        cutoff      time cutoff in seconds - not used
+        seed        random seed - not used
 
     Prints:
-        line 1: total cost (float)
-        line 2: comma-separated vertex IDs (1-based)
+        line 1: total cost , solution quality (float)
+        line 2: comma-separated vertex IDs starts from 1
 
     Returns:
         runtime (seconds)
     """
     
-
+    # check file path validity
     if file_path is None or not isinstance(file_path, str) or not os.path.isfile(file_path):
         raise ValueError(f"Invalid file path: {file_path}")
 
@@ -180,27 +178,27 @@ def run_tsp(file_path,cutoff=0,seed=None):
     else:
         sol_filename = "../output/approximate/" + os.path.splitext(os.path.basename(file_path))[0] + "_Approx_"+str(seed)+".sol"
 
-    # ---- Parse TSP ----
-    coords = parse_tsp_file(file_path)
+    # read tsp and get all vertex coordinates
+    coords = read_tsp_file(file_path)
 
-    # ---- Run Algorithm + time it ----
+    # run the mst approx algorithm and time it
     start = time.time()
     tour = mst_approx_algorithm(coords)
     end = time.time()
     runtime = end - start
 
-    # ---- Compute solution quality ----
+    # computing cost of the returned tour
     best_cost = tour_length(coords, tour)
 
-    # ---- Prepare output strings ----
+    #Preparing output
     line1 = f"{best_cost:.6f}"
     line2 = ",".join(str(i + 1) for i in tour)
 
-    # ---- Print to stdout ----
+    
     print(line1)
     print(line2)
 
-    # ---- Write to .sol file ----
+    # Write to .sol file
     with open(sol_filename, "w") as f:
         f.write(line1 + "\n")
         f.write(line2 + "\n")
@@ -208,13 +206,12 @@ def run_tsp(file_path,cutoff=0,seed=None):
     return runtime
 
 
-# Takes in the filename as a an argument to run the mst_2approx_algorithm
-
+# for indivisual testing
 if __name__ == "__main__":
     if len(sys.argv) != 2:
         print("Usage: python tsp_mst.py <instance.tsp>")
         sys.exit(1)
 
     file_path = sys.argv[1]
-    a = run_tsp(file_path)
+    a = run_tsp_approx(file_path)
     print(f"{a} seconds")
