@@ -200,8 +200,11 @@ def local_search_tsp(file_path, coords, cutoff, seed):
     sa_time = 0
     nn_len = 0
     two_len = 0
+    avg_sa_len = 0
     # Base RNG to produce per-run seeds and reproducible shuffles
     base_rand = random.Random(seed) if seed is not None else random.Random()
+    best_sa_len = 0
+    best_sa_time = 0
     # Run for 10 times with distinct random seeds
     for i in range(10):
         # Random initial tour (use base_rand for reproducibility when seed provided)
@@ -215,14 +218,24 @@ def local_search_tsp(file_path, coords, cutoff, seed):
             seed=run_seed
         )
         sa_time += sa_stats['time']
-
+        if sa_len < best_sa_len and i > 0:
+            best_sa_len = sa_len
+            best_sa_time = sa_stats['time']
+            #best_sa_tour = sa_tour
+        elif i == 0:
+            best_sa_len = sa_len
+            best_sa_time = sa_stats['time']
+            #best_sa_tour = sa_tour
+        avg_sa_len += sa_len#total_length(sa_tour, points)
         nn_len += total_length(nn_tour, points)
         two_len += total_length(two_tour, points)
 
     sa_time = sa_time / 10
+    avg_sa_len = avg_sa_len / 10
     nn_len = nn_len / 10
     two_len = two_len /10
-
+    print("Best SA length: " + str(best_sa_len) + "\n")
+    print("Best SA time: " + str(best_sa_time) + "\n")
     #def run_tsp(file_path,cutoff=0,seed=None):
     """
     Run a TSP algorithm, measure runtime, print results, and write .sol file.
@@ -257,7 +270,7 @@ def local_search_tsp(file_path, coords, cutoff, seed):
 
     # ---- Compute solution quality ----
     #best_cost = tour_length(coords, tour)
-    best_cost = two_len
+    best_cost = avg_sa_len
 
     # ---- Prepare output strings ----
     line1 = f"{best_cost:.6f}"
