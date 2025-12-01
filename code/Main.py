@@ -99,7 +99,7 @@ def run_and_write_solution(instance_path, method, cutoff, seed=None):
     elif method == "LS":
         if seed is None:
             raise ValueError("Local Search (LS) requires a seed")
-        tour_algo = lambda coords: local_search_tsp(coords, cutoff, seed)
+        tour_algo = local_search_tsp(file_path = instance_path, coords = coords, cutoff = cutoff, seed = seed)
     else:
         raise ValueError(f"Unknown algorithm: {method}")
     runtime = time.time() - start
