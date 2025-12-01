@@ -9,7 +9,7 @@ import random
 
 # from bf_solver import brute_force_tsp           
 from approximation import run_tsp    
-# from local_search import local_search_tsp       
+from local_search import local_search_tsp       
 
 
 
