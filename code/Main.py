@@ -7,6 +7,7 @@ import os
 import time
 import random
 
+### Takes in the algorithm choice, instance file path, cutoff time, and optional seed and produce output file in respective folder in output
 # from bf_solver import brute_force_tsp           
 from approximation import run_tsp_approx    
 # from local_search import local_search_tsp       
@@ -57,7 +58,7 @@ def parse_tsp_file(file_path):
     return coords
 
 
-# # ---------- Geometry / tour length ----------
+
 
 # def euclid_dist(coords, i, j):
 #     """
