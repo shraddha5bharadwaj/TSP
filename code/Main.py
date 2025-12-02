@@ -11,9 +11,16 @@ import random
 # from bf_solver import brute_force_tsp           
 from approximation import run_tsp_approx    
 # from local_search import local_search_tsp       
- 
+from brute_force import TSPSolver 
+
 from local_search import local_search_tsp       
 
+def run_bruteforce(instance_path, cutoff, seed):
+    solver = TSPSolver(instance_path, cutoff)
+    solver.parse_file()
+    solver.solve_brute_force()
+    solver.write_output("BF")
+    
 
 
 def parse_tsp_file(file_path):
@@ -88,7 +95,7 @@ def parse_tsp_file(file_path):
 
 
 
-def run_and_write_solution(instance_path, method, cutoff, seed=None):
+def run_and_write_solution(instance_path, method="BF", cutoff=10, seed=None):
     # --- Load coordinates ---
     coords = parse_tsp_file(instance_path)
 
@@ -96,7 +103,7 @@ def run_and_write_solution(instance_path, method, cutoff, seed=None):
     start = time.time()
     method = method.upper()
     if method == "BF":
-        tour_algo = brute_force_tsp
+        tour_algo = run_bruteforce(instance_path, cutoff, seed)
     elif method == "APPROX":
         tour_algo = run_tsp_approx(file_path=instance_path,cutoff=cutoff,seed=seed)
     elif method == "LS":

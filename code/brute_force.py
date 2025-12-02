@@ -110,7 +110,7 @@ class TSPSolver:
     def write_output(self, method_code):
         # Constructs the output filename and directory, then writes the solution quality and path to a .sol file.
         # Formats the output to include the total cost, the ordered sequence of node IDs, and the tour status.
-        subfolder = "brute_force"
+        subfolder = "../output/brute_force"
         os.makedirs(subfolder, exist_ok=True)
 
         cutoff_str = str(int(self.cutoff_time))
